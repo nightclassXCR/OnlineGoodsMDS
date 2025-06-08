@@ -46,9 +46,14 @@
         <el-form-item label="用户名">
           <el-input v-model="form.username" />
         </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="form.password" type="password" :placeholder="form.id ? '留空表示不修改密码' : ''" />
-        </el-form-item>
+        <el-form-item label="密码" prop="password">
+        <el-input
+          type="password"
+          v-model="form.password"
+          autocomplete="new-password"
+          placeholder="请输入密码，不改留 ******"
+        ></el-input>
+      </el-form-item>
         <el-form-item label="角色">
           <el-select v-model="form.role" placeholder="请选择角色">
             <el-option label="管理员" value="admin" />
@@ -68,6 +73,9 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserList, addUser, updateUser, deleteUser as apiDeleteUser } from '../api/user'
+
+// 密码占位符
+const PASSWORD_PLACEHOLDER = '******'
 
 const searchUsername = ref('')
 const userList = ref([])
@@ -109,17 +117,12 @@ function openAddDialog() {
 }
 
 function editUser(user) {
-  form.value = { ...user, password: '' } // 密码不回显
+  form.value = { ...user}
   dialogVisible.value = true
 }
 
 function submitForm() {
   if (form.value.id) {
-    // 编辑
-    const payload = { ...form.value }
-    if (!payload.password) {
-      delete payload.password // 不修改密码时不传
-    }
     updateUser(payload).then(res => {
       if (res.data.code === 200) {
         ElMessage.success('修改成功')
